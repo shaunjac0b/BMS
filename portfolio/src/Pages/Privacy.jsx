@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../Components/Navbar"; // Assuming Navbar is still relevant for general layout
-import { ArrowLeft, Fingerprint, Bell, EyeOff, Mail, MapPin, Tablet } from "lucide-react"; // Replaced icons
+import Navbar from "../Components/Navbar";
+import {
+  ArrowLeft,
+  EyeOff,    // Icon for hiding balances / visibility
+  Mail,      // Icon for marketing emails
+  MapPin,    // Icon for location data usage
+  BarChart2, // Icon for data dashboard
+  ShieldOff // Or similar, for data privacy
+} from "lucide-react";
 import "../index.css";
 
-const PrivacySecuritySettings = () => { // Renamed component
+const PrivacySettings = () => {
   const navigate = useNavigate();
 
-  const [settings, setSettings] = useState({ // Renamed state variable
-    biometricLogin: true,
-    transactionAlerts: true,
+  const [settings, setSettings] = useState({
     hideAccountBalances: false,
-    marketingEmails: true,
-    locationSecurity: true,
-    dataAnalyticsConsent: false, // For internal, anonymized data
-    deviceManagementAlerts: true,
+    locationSecurity: true, // Renamed from locationTracking, but its placement here is more about privacy of data
+    dataAnalyticsConsent: false,
+    marketingEmails: false, // Keeping it here, though it was in Notifications too
   });
 
   const handleToggle = (key) => {
@@ -25,9 +29,8 @@ const PrivacySecuritySettings = () => { // Renamed component
   };
 
   const handleSave = () => {
-    console.log("Saving banking privacy and security settings:", settings);
-    // In a real application, you would send these settings to a backend API
-    // and handle success/failure, maybe show a toast notification.
+    console.log("Saving banking privacy settings:", settings);
+    alert("Privacy settings saved!");
   };
 
   const ToggleSwitch = ({ checked, onChange, label, description }) => (
@@ -79,68 +82,10 @@ const PrivacySecuritySettings = () => { // Renamed component
             style={{ cursor: "pointer", marginRight: "15px", color: "#555" }}
             onClick={() => navigate("/settings")}
           />
-          <h2 className="settings-heading" style={{ margin: 0 }}>Privacy & Security</h2> {/* Updated heading */}
+          <h2 className="settings-heading" style={{ margin: 0 }}>Privacy Settings</h2>
         </div>
 
         <div className="settings-container" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {/* Account Security Section */}
-          <div className="Setting" style={{
-            border: "1px solid #ccc",
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: "#fff"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-              <Fingerprint size={24} style={{ marginRight: "10px", color: "#555" }} />
-              <h3 style={{ margin: 0 }}>Account Security</h3>
-            </div>
-
-            <ToggleSwitch
-              checked={settings.biometricLogin}
-              onChange={() => handleToggle('biometricLogin')}
-              label="Biometric Login"
-              description="Enable Fingerprint or Face ID for quick and secure login."
-            />
-
-            <ToggleSwitch
-              checked={settings.deviceManagementAlerts}
-              onChange={() => handleToggle('deviceManagementAlerts')}
-              label="New Device Alerts"
-              description="Receive notifications when your account is accessed from a new device."
-            />
-             <div style={{ padding: "15px 0", borderBottom: "1px solid #eee", cursor: "pointer" }}
-                  onClick={() => navigate("/authorized-devices")}> {/* Example of a new navigation */}
-                  <div style={{ fontWeight: "500", marginBottom: "4px" }}>Manage Authorized Devices</div>
-                  <div style={{ fontSize: "14px", color: "#666" }}>View and remove devices connected to your account.</div>
-            </div>
-          </div>
-
-          {/* Notifications Section */}
-          <div className="Setting" style={{
-            border: "1px solid #ccc",
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: "#fff"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-              <Bell size={24} style={{ marginRight: "10px", color: "#555" }} />
-              <h3 style={{ margin: 0 }}>Notifications</h3>
-            </div>
-
-            <ToggleSwitch
-              checked={settings.transactionAlerts}
-              onChange={() => handleToggle('transactionAlerts')}
-              label="Transaction Alerts"
-              description="Get real-time notifications for all account activities."
-            />
-
-            {/* You could add more granular notification settings here, e.g., type of alerts */}
-            <div style={{ padding: "15px 0", borderBottom: "1px solid #eee", cursor: "pointer" }}
-                 onClick={() => navigate("/notification-preferences")}>
-                <div style={{ fontWeight: "500", marginBottom: "4px" }}>Notification Preferences</div>
-                <div style={{ fontSize: "14px", color: "#666" }}>Customize alert types and delivery methods.</div>
-            </div>
-          </div>
 
           {/* Data & Privacy Control Section */}
           <div className="Setting" style={{
@@ -150,7 +95,7 @@ const PrivacySecuritySettings = () => { // Renamed component
             backgroundColor: "#fff"
           }}>
             <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
-              <EyeOff size={24} style={{ marginRight: "10px", color: "#555" }} /> {/* Changed icon */}
+              <ShieldOff size={24} style={{ marginRight: "10px", color: "#555" }} /> {/* Changed icon for data privacy */}
               <h3 style={{ margin: 0 }}>Data & Privacy Control</h3>
             </div>
 
@@ -164,23 +109,36 @@ const PrivacySecuritySettings = () => { // Renamed component
             <ToggleSwitch
               checked={settings.locationSecurity}
               onChange={() => handleToggle('locationSecurity')}
-              label="Location-Based Security"
-              description="Allow location access to help detect suspicious activities and enhance security."
+              label="Location Data Usage"
+              description="Allow us to use your location for personalized offers and services (not for fraud detection)."
             />
+             <p style={{ fontSize: "12px", color: "#888", margin: "5px 0 15px 0" }}>
+              (Location for security purposes is managed under Security Settings.)
+            </p>
 
             <ToggleSwitch
               checked={settings.dataAnalyticsConsent}
               onChange={() => handleToggle('dataAnalyticsConsent')}
               label="Anonymous Data for Analytics"
-              description="Allow us to use anonymized data to improve our services (your personal data is never shared)."
+              description="Allow us to use anonymized data to improve our services and features (your personal data is never shared)."
             />
 
             <ToggleSwitch
               checked={settings.marketingEmails}
               onChange={() => handleToggle('marketingEmails')}
               label="Marketing Communications"
-              description="Receive emails about new products, services, and offers."
+              description="Receive emails about new products, services, and promotional offers."
             />
+
+            {/* Above and Beyond: Detailed Data Usage Dashboard Link */}
+            <div style={{ padding: "15px 0", borderTop: "1px solid #eee", marginTop: "20px", cursor: "pointer" }}
+              onClick={() => alert("Navigate to a detailed data usage dashboard showing collected data categories and their purpose.")}>
+              <div style={{ fontWeight: "500", marginBottom: "4px", display: "flex", alignItems: "center" }}>
+                <BarChart2 size={18} style={{ marginRight: "8px" }} />
+                View Detailed Data Usage
+              </div>
+              <div style={{ fontSize: "14px", color: "#666" }}>See how your data contributes to service improvements with full transparency.</div>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
@@ -218,4 +176,4 @@ const PrivacySecuritySettings = () => { // Renamed component
   );
 };
 
-export default PrivacySecuritySettings; // Exporting the renamed component
+export default PrivacySettings;

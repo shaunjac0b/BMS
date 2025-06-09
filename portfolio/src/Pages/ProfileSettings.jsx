@@ -1,27 +1,39 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Phone, Home, FileText, Lock, Key } from "lucide-react"; // Replaced icons
+import Navbar from "../Components/Navbar";
+import {
+  ArrowLeft,
+  User,
+  Mail,
+  Phone,
+  Home,
+  FileText,
+  Lock,
+  Key,
+  Sparkles, // New Icon for Pronouns
+  UploadCloud, // New Icon for Document Upload
+  ScrollText, // New Icon for Estate Planning
+  MapPin as MapPinIcon // Alias to avoid conflict with existing MapPin
+} from "lucide-react";
 
-const ProfileSettings = () => { // Renamed component for banking context
+const ProfileSettings = () => {
   const navigate = useNavigate();
 
-  // In a real banking app, initial data would be fetched from an API
   const [formData, setFormData] = useState({
-    firstName: "John", // Example data
-    lastName: "Doe",   // Example data
-    email: "john.doe@example.com", // Example data
-    phone: "123-456-7890",         // Example data
-    addressLine1: "123 Bank St",    // Added address fields
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
+    phone: "123-456-7890",
+    addressLine1: "123 Bank St",
     addressLine2: "Apt 4B",
     city: "Plano",
     state: "TX",
     zipCode: "75024",
-    // Date of Birth and SSN/Tax ID are highly sensitive and usually not directly editable via a simple form
-    // They often require document submission or customer service contact for changes.
-    // For display purposes, they might be here as read-only.
-    // dateOfBirth: "1985-06-15",
-    // ssnLast4: "1234", // Last 4 digits for display, never editable directly here
+    pronouns: "prefer_not_say", // New state for pronouns
   });
+
+  // New state for document upload/verification status
+  const [identityVerificationStatus, setIdentityVerificationStatus] = useState("verified"); // 'verified', 'pending_review', 'action_required'
 
   const handleInputChange = (e) => {
     setFormData({
@@ -31,14 +43,13 @@ const ProfileSettings = () => { // Renamed component for banking context
   };
 
   const handleSave = () => {
-    // In a real banking app:
-    // 1. Client-side validation
-    // 2. Potentially confirm changes with user (e.g., "Are you sure you want to update your phone number?")
-    // 3. Send data to a secure backend API.
-    // 4. For highly sensitive changes (like email, phone, address), often a secondary verification step (e.g., OTP to old number/email, or call to confirm) is required.
-    // 5. Handle success/error messages.
     console.log("Attempting to save account profile changes:", formData);
     alert("Changes saved! (In a real app, some changes might require further verification.)");
+  };
+
+  const handleVerifyAddress = () => {
+    alert("Initiating address verification... (This would trigger an API call and potentially show a map view for confirmation)");
+    // In a real app, this would involve a geocoding API and user confirmation
   };
 
   return (
@@ -50,7 +61,7 @@ const ProfileSettings = () => { // Renamed component for banking context
             style={{ cursor: "pointer", marginRight: "15px", color: "#555" }}
             onClick={() => navigate("/settings")}
           />
-          <h2 className="settings-heading" style={{ margin: 0 }}>Profile Settings</h2> {/* Updated heading */}
+          <h2 className="settings-heading" style={{ margin: 0 }}>Account Profile</h2>
         </div>
 
         <div className="settings-container" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -80,10 +91,10 @@ const ProfileSettings = () => { // Renamed component for banking context
                     border: "1px solid #ddd",
                     borderRadius: "4px",
                     fontSize: "14px",
-                    backgroundColor: "#f9f9f9" // Often read-only or special process for name changes
+                    backgroundColor: "#f9f9f9"
                   }}
-                  readOnly // Name changes often require documentation
-                  title="To change your name, please contact customer support."
+                  readOnly
+                  title="To change your legal name, please contact customer support and provide documentation."
                 />
               </div>
               <div>
@@ -101,10 +112,36 @@ const ProfileSettings = () => { // Renamed component for banking context
                     fontSize: "14px",
                     backgroundColor: "#f9f9f9"
                   }}
-                  readOnly // Name changes often require documentation
-                  title="To change your name, please contact customer support."
+                  readOnly
+                  title="To change your legal name, please contact customer support and provide documentation."
                 />
               </div>
+            </div>
+
+            {/* New: Pronoun Preferences */}
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px", fontWeight: "500" }}>
+                <Sparkles size={16} style={{ marginRight: "5px", verticalAlign: "middle" }} />
+                Preferred Pronouns
+              </label>
+              <select
+                name="pronouns"
+                value={formData.pronouns}
+                onChange={handleInputChange}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                  fontSize: "14px"
+                }}
+              >
+                <option value="prefer_not_say">Prefer not to say</option>
+                <option value="she/her">She/Her</option>
+                <option value="he/him">He/Him</option>
+                <option value="they/them">They/Them</option>
+                <option value="other">Other</option>
+              </select>
             </div>
 
             <div style={{ marginBottom: "15px" }}>
@@ -151,7 +188,7 @@ const ProfileSettings = () => { // Renamed component for banking context
             <div style={{ marginBottom: "15px" }}>
               <label style={{ display: "block", marginBottom: "5px", fontWeight: "500" }}>
                 <Home size={16} style={{ marginRight: "5px", verticalAlign: "middle" }} />
-                Address
+                Primary Address
               </label>
               <input
                 type="text"
@@ -197,6 +234,25 @@ const ProfileSettings = () => { // Renamed component for banking context
                   style={{ width: "100%", padding: "10px", border: "1px solid #ddd", borderRadius: "4px", fontSize: "14px" }}
                 />
               </div>
+              {/* New: Address Verification Tool */}
+              <button
+                onClick={handleVerifyAddress}
+                style={{
+                  marginTop: "10px",
+                  padding: "8px 15px",
+                  border: "1px solid #007bff",
+                  borderRadius: "4px",
+                  backgroundColor: "#fff",
+                  color: "#007bff",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                <MapPinIcon size={16} style={{ marginRight: "5px" }} />
+                Verify Address
+              </button>
             </div>
 
             {/* Read-only sensitive information example */}
@@ -215,6 +271,91 @@ const ProfileSettings = () => { // Renamed component for banking context
                 </span>
               </p>
             </div>
+          </div>
+
+          {/* New: Self-Serve Document Upload & Verification Status */}
+          <div className="Setting" style={{
+            border: "1px solid #ccc",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "#fff"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+              <UploadCloud size={24} style={{ marginRight: "10px", color: "#555" }} />
+              <h3 style={{ margin: 0 }}>Identity Verification & Documents</h3>
+            </div>
+            <p style={{ fontSize: "14px", color: "#666", marginBottom: "15px" }}>
+              Verification Status: <span style={{ fontWeight: "bold", color:
+                identityVerificationStatus === "verified" ? "#28a745" :
+                identityVerificationStatus === "pending_review" ? "#ffc107" : "#dc3545"
+              }}>
+                {identityVerificationStatus.replace(/_/g, ' ').toUpperCase()}
+              </span>
+            </p>
+            {identityVerificationStatus !== "verified" && (
+              <div style={{ marginBottom: "15px", padding: "15px", backgroundColor: "#fff3cd", borderRadius: "4px", border: "1px solid #ffeaa7" }}>
+                <p style={{ margin: 0, fontSize: "14px", color: "#856404" }}>
+                  Action required: Please upload proof of identity to complete verification.
+                </p>
+                <button
+                  onClick={() => alert("Navigate to document upload interface.")}
+                  style={{
+                    marginTop: "10px",
+                    padding: "8px 15px",
+                    border: "1px solid #856404",
+                    borderRadius: "4px",
+                    backgroundColor: "#fff",
+                    color: "#856404",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                    display: "flex",
+                    alignItems: "center"
+                  }}
+                >
+                  <UploadCloud size={16} style={{ marginRight: "5px" }} />
+                  Upload Documents
+                </button>
+              </div>
+            )}
+            <div style={{ padding: "15px 0", borderTop: "1px solid #eee", cursor: "pointer" }}
+                 onClick={() => alert("Navigate to document history page.")}>
+                <div style={{ fontWeight: "500", marginBottom: "4px" }}>View Document History</div>
+                <div style={{ fontSize: "14px", color: "#666" }}>Review documents submitted for verification.</div>
+            </div>
+          </div>
+
+
+          {/* New: Digital Estate Planning */}
+          <div className="Setting" style={{
+            border: "1px solid #ccc",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "#fff"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+              <ScrollText size={24} style={{ marginRight: "10px", color: "#555" }} />
+              <h3 style={{ margin: 0 }}>Digital Estate Planning</h3>
+            </div>
+            <p style={{ fontSize: "14px", color: "#666", marginBottom: "15px" }}>
+              Securely designate beneficiaries and trusted contacts for your accounts.
+            </p>
+            <button
+              onClick={() => alert("Navigate to Digital Estate Planning section.")}
+              style={{
+                padding: "10px 15px",
+                border: "none",
+                borderRadius: "4px",
+                backgroundColor: "#007bff",
+                color: "#fff",
+                cursor: "pointer",
+                fontSize: "14px",
+                display: "flex",
+                alignItems: "center"
+              }}
+            >
+              <User size={16} style={{ marginRight: "8px" }} />
+              Manage Beneficiaries
+            </button>
           </div>
 
           <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
@@ -252,4 +393,4 @@ const ProfileSettings = () => { // Renamed component for banking context
   );
 };
 
-export default ProfileSettings; // Exporting the renamed component
+export default ProfileSettings;

@@ -1,16 +1,42 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, Key, Smartphone, Phone, BellRing, ShieldCheck, ListChecks, QrCode } from "lucide-react"; // Updated icons
+import Navbar from "../Components/Navbar";
+import {
+  ArrowLeft,
+  Lock,           // General lock/security icon
+  Key,            // Change password icon
+  Smartphone,     // 2FA / Device icon
+  BellRing,       // Alerts icon
+  ShieldCheck,    // General security/policy icon
+  ListChecks,     // Checklist icon
+  QrCode,         // QR code for authenticator
+  Award,          // New: Security Score
+  LockKeyhole,    // New: Emergency Lock
+  Globe,          // New: Geo Restrictions
+  MapPin          // For Manage Allowed Regions
+} from "lucide-react";
+import "../index.css";
 
 const SecuritySettings = () => {
   const navigate = useNavigate();
 
   const [security, setSecurity] = useState({
-    twoFactorAuthEnabled: false, // Renamed for clarity
-    transactionVerification: true, // New: Require 2FA for certain transactions
-    loginAlerts: true,
+    // Security Score (simulated for UI)
+    securityScore: 85,
+    // Emergency Lock (simulated for UI)
+    isAccountLocked: false,
+
+    // Authentication & Access
+    biometricLogin: true,
+    twoFactorAuthEnabled: true,
+    transactionVerification: true, // Require 2FA for certain transactions
     sessionTimeout: "30",
-    // passwordExpiry removed - focus on strong password policies instead
+
+    // Alerts & Device Management
+    loginAlerts: true, // Now for unusual activity
+    newDeviceLoginAlerts: true, // Explicit new device login alerts
+    geoRestrictionsEnabled: false, // Geo-blocking
+    locationSecurityForFraud: true, // Explicitly for fraud detection (distinct from privacy location)
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -40,9 +66,8 @@ const SecuritySettings = () => {
     });
   };
 
-  const handleSaveSecuritySettings = () => { // Renamed for clarity
+  const handleSaveSecuritySettings = () => {
     console.log("Saving general security settings:", security);
-    // In a real app, send these settings to backend API
     alert("Security settings saved!");
   };
 
@@ -51,14 +76,19 @@ const SecuritySettings = () => {
       alert("New passwords don't match!");
       return;
     }
-    // In a real banking app:
-    // 1. Validate current password against backend
-    // 2. Enforce strong password requirements (min length, special chars, etc.)
-    // 3. Hash and store new password securely
-    // 4. Potentially prompt for an OTP for verification before changing password
     console.log("Attempting to update password");
     alert("Password updated successfully! (Additional verification steps might be required in a live banking app.)");
     setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  };
+
+  // New handler for Emergency Account Lock
+  const handleEmergencyLock = () => {
+    if (window.confirm("Are you sure you want to immediately lock your account? This will disable all transactions and online access. You will need to contact customer support to unlock it.")) {
+      setSecurity(prev => ({ ...prev, isAccountLocked: true }));
+      console.log("EMERGENCY ACCOUNT LOCK ACTIVATED!");
+      alert("Your account has been locked. Please contact customer support immediately.");
+      // In a real app, this would trigger a critical backend process
+    }
   };
 
   const ToggleSwitch = ({ checked, onChange, label, description }) => (
@@ -101,6 +131,19 @@ const SecuritySettings = () => {
     </div>
   );
 
+  // Determine security recommendations based on current settings
+  const getSecurityRecommendations = () => {
+    const recommendations = [];
+    if (!security.biometricLogin) recommendations.push("Enable Biometric Login for faster, secure access.");
+    if (!security.twoFactorAuthEnabled) recommendations.push("Set up Two-Factor Authentication for critical actions.");
+    if (!security.newDeviceLoginAlerts) recommendations.push("Turn on New Device Login Alerts to monitor account access.");
+    if (security.sessionTimeout === "never" || security.sessionTimeout === "") recommendations.push("Set an automatic logout duration for added security.");
+    if (!security.locationSecurityForFraud) recommendations.push("Enable Location-Based Security for enhanced fraud detection.");
+    if (recommendations.length === 0) return ["Your security settings are strong!"];
+    return recommendations;
+  };
+
+
   return (
     <>
       <div className="Settings" style={{ marginTop: "20px", maxWidth: "600px", margin: "20px auto", padding: "0 20px" }}>
@@ -110,10 +153,35 @@ const SecuritySettings = () => {
             style={{ cursor: "pointer", marginRight: "15px", color: "#555" }}
             onClick={() => navigate("/settings")}
           />
-          <h2 className="settings-heading" style={{ margin: 0 }}>Security Settings</h2> {/* Consistent heading */}
+          <h2 className="settings-heading" style={{ margin: 0 }}>Security Settings</h2>
         </div>
 
         <div className="settings-container" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+
+          {/* Above and Beyond: Security Scorecard */}
+          <div className="Setting" style={{
+            border: "1px solid #ccc",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "#fff",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+              <Award size={24} style={{ marginRight: "10px", color: "#007bff" }} />
+              <h3 style={{ margin: 0, color: "#007bff" }}>Your Security Score: {security.securityScore}/100</h3>
+            </div>
+            <p style={{ fontSize: "14px", color: "#666", marginBottom: "15px" }}>
+              A higher score means your account is better protected.
+            </p>
+            <div style={{ backgroundColor: "#f0f8ff", padding: "15px", borderRadius: "4px", border: "1px solid #d0e8f8" }}>
+              <h4 style={{ margin: "0 0 10px 0", fontSize: "16px", color: "#0056b3" }}>Recommendations:</h4>
+              <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "14px", color: "#333" }}>
+                {getSecurityRecommendations().map((rec, index) => (
+                  <li key={index} style={{ marginBottom: "5px" }}>{rec}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
           {/* Change Password Section */}
           <div className="Setting" style={{
@@ -143,7 +211,7 @@ const SecuritySettings = () => {
                   borderRadius: "4px",
                   fontSize: "14px"
                 }}
-                autoComplete="current-password" // For better browser autofill management
+                autoComplete="current-password"
               />
             </div>
 
@@ -163,11 +231,11 @@ const SecuritySettings = () => {
                   borderRadius: "4px",
                   fontSize: "14px"
                 }}
-                autoComplete="new-password" // For better browser autofill management
+                autoComplete="new-password"
               />
               <p style={{ fontSize: "12px", color: "#666", margin: "5px 0 0 0" }}>
                 Must be at least 8 characters, including uppercase, lowercase, numbers, and symbols.
-              </p> {/* Added password requirements */}
+              </p>
             </div>
 
             <div style={{ marginBottom: "20px" }}>
@@ -186,7 +254,7 @@ const SecuritySettings = () => {
                   borderRadius: "4px",
                   fontSize: "14px"
                 }}
-                autoComplete="new-password" // For better browser autofill management
+                autoComplete="new-password"
               />
             </div>
 
@@ -264,7 +332,7 @@ const SecuritySettings = () => {
                     fontSize: "14px"
                   }}
                 >
-                  <Phone size={16} style={{ verticalAlign: "middle", marginRight: "5px" }} />
+                  <Smartphone size={16} style={{ verticalAlign: "middle", marginRight: "5px" }} />
                   Manage SMS 2FA
                 </button>
               </div>
@@ -298,6 +366,23 @@ const SecuritySettings = () => {
               description="Get notifications for suspicious login attempts or unusual account activity."
             />
 
+            <ToggleSwitch
+              checked={security.newDeviceLoginAlerts}
+              onChange={() => handleToggle('newDeviceLoginAlerts')}
+              label="New Device Login Alerts"
+              description="Receive notifications when your account is accessed from a new device."
+            />
+
+            <ToggleSwitch
+              checked={security.locationSecurityForFraud}
+              onChange={() => handleToggle('locationSecurityForFraud')}
+              label="Location for Fraud Detection"
+              description="Allow location access to help detect suspicious activities and enhance security."
+            />
+            <p style={{ fontSize: "12px", color: "#888", margin: "5px 0 15px 0" }}>
+              (Location for personalized offers is managed under Privacy Settings.)
+            </p>
+
             <div style={{ marginTop: "20px", paddingTop: "15px", borderTop: "1px solid #eee" }}>
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "500" }}>
                 Automatic Logout
@@ -323,14 +408,99 @@ const SecuritySettings = () => {
             </div>
 
             <div style={{ padding: "15px 0", borderBottom: "1px solid #eee", cursor: "pointer" }}
-                 onClick={() => navigate("/authorized-devices")}> {/* Added navigation */}
-                <div style={{ fontWeight: "500", marginBottom: "4px" }}>Manage Authorized Devices</div>
-                <div style={{ fontSize: "14px", color: "#666" }}>Review and remove devices that have accessed your account.</div>
+              onClick={() => navigate("/authorized-devices")}>
+              <div style={{ fontWeight: "500", marginBottom: "4px" }}>Manage Authorized Devices</div>
+              <div style={{ fontSize: "14px", color: "#666" }}>Review and remove devices that have accessed your account.</div>
             </div>
 
           </div>
 
-          {/* Security Recommendations & Policies Section */}
+          {/* Above and Beyond: Geographic Transaction Restrictions */}
+          <div className="Setting" style={{
+            border: "1px solid #ccc",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "#fff"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+              <Globe size={24} style={{ marginRight: "10px", color: "#555" }} />
+              <h3 style={{ margin: 0 }}>Geographic Transaction Security</h3>
+            </div>
+
+            <ToggleSwitch
+              checked={security.geoRestrictionsEnabled}
+              onChange={() => handleToggle('geoRestrictionsEnabled')}
+              label="Enable Geo-Restrictions"
+              description="Control where your cards and account can be used for transactions."
+            />
+
+            {security.geoRestrictionsEnabled && (
+              <div style={{ marginTop: "15px", paddingTop: "15px", borderTop: "1px solid #eee" }}>
+                <button
+                  onClick={() => alert("Navigate to a page to manage allowed/blocked regions on a map.")}
+                  style={{
+                    padding: "10px 15px",
+                    border: "1px solid #007bff",
+                    borderRadius: "4px",
+                    backgroundColor: "#fff",
+                    color: "#007bff",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    display: "flex",
+                    alignItems: "center"
+                  }}
+                >
+                  <MapPin size={18} style={{ marginRight: "8px" }} />
+                  Manage Allowed Regions
+                </button>
+                <p style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
+                  Transactions outside your allowed regions will be automatically declined.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Above and Beyond: Emergency Account Lock Button */}
+          <div className="Setting" style={{
+            border: "1px solid #ccc",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "#fff"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+              <LockKeyhole size={24} style={{ marginRight: "10px", color: "#dc3545" }} />
+              <h3 style={{ margin: 0, color: "#dc3545" }}>Emergency Account Lock</h3>
+            </div>
+            <p style={{ fontSize: "14px", color: "#666", marginBottom: "15px" }}>
+              Immediately freeze all account activity if you suspect fraud or your credentials are compromised.
+            </p>
+            <button
+              onClick={handleEmergencyLock}
+              style={{
+                width: "100%",
+                padding: "12px 20px",
+                border: "none",
+                borderRadius: "4px",
+                backgroundColor: security.isAccountLocked ? "#dc3545" : "#ffc107",
+                color: "#fff",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+              disabled={security.isAccountLocked}
+            >
+              <LockKeyhole size={20} style={{ marginRight: "10px" }} />
+              {security.isAccountLocked ? "Account Locked - Contact Support" : "Emergency Account Lock"}
+            </button>
+            <p style={{ fontSize: "12px", color: "#dc3545", textAlign: "center", marginTop: "10px" }}>
+              Unlocking requires contacting customer support for verification.
+            </p>
+          </div>
+
+          {/* Security Policies & Resources Section */}
           <div className="Setting" style={{
             border: "1px solid #ccc",
             padding: "20px",
@@ -343,15 +513,21 @@ const SecuritySettings = () => {
             </div>
 
             <div style={{ padding: "15px 0", borderBottom: "1px solid #eee", cursor: "pointer" }}
-                 onClick={() => alert("Navigate to Password Policy page")}> {/* Added navigation */}
-                <div style={{ fontWeight: "500", marginBottom: "4px" }}>View Password Policy</div>
-                <div style={{ fontSize: "14px", color: "#666" }}>Understand our guidelines for creating strong and secure passwords.</div>
+              onClick={() => alert("Navigate to Password Policy page")}>
+              <div style={{ fontWeight: "500", marginBottom: "4px" }}>View Password Policy</div>
+              <div style={{ fontSize: "14px", color: "#666" }}>Understand our guidelines for creating strong and secure passwords.</div>
             </div>
 
             <div style={{ padding: "15px 0", borderBottom: "1px solid #eee", cursor: "pointer" }}
-                 onClick={() => alert("Navigate to Fraud Prevention Tips page")}> {/* Added navigation */}
-                <div style={{ fontWeight: "500", marginBottom: "4px" }}>Fraud Prevention Tips</div>
-                <div style={{ fontSize: "14px", color: "#666" }}>Learn how to protect yourself from common scams and fraud.</div>
+              onClick={() => alert("Navigate to Security Questions management page")}>
+              <div style={{ fontWeight: "500", marginBottom: "4px" }}>Manage Security Questions</div>
+              <div style={{ fontSize: "14px", color: "#666" }}>Update your security questions for account recovery.</div>
+            </div>
+
+            <div style={{ padding: "15px 0", borderBottom: "1px solid #eee", cursor: "pointer" }}
+              onClick={() => alert("Navigate to Fraud Prevention Tips page")}>
+              <div style={{ fontWeight: "500", marginBottom: "4px" }}>Fraud Prevention Tips</div>
+              <div style={{ fontSize: "14px", color: "#666" }}>Learn how to protect yourself from common scams and fraud.</div>
             </div>
 
             <div style={{ marginTop: "20px", padding: "15px", backgroundColor: "#e6f7ff", borderRadius: "4px", border: "1px solid #a6e0ff" }}>
@@ -380,7 +556,7 @@ const SecuritySettings = () => {
               Cancel
             </button>
             <button
-              onClick={handleSaveSecuritySettings} // Changed to the general save handler
+              onClick={handleSaveSecuritySettings}
               style={{
                 padding: "10px 20px",
                 border: "none",
