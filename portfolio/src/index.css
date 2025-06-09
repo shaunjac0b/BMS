@@ -469,3 +469,29 @@ h5 {
 .contact-img:hover {
   transform: scale(1.1); /* Enlarge the image on hover */
 }
+
+.Settings {
+  padding: 24px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.settings-heading {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.settings-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.Setting:hover {
+  background-color: #f3f3f3;
+  border-color: #999;
+}
