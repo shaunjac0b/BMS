@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import '../index.css';
+import { Link } from 'react-router-dom';
 
 function Navbar() {
   useEffect(() => {
@@ -26,7 +27,7 @@ function Navbar() {
       </div>
       <div className='options'>
         <a href="#about">Transactions</a>
-        <a href="#skills">Statements</a>
+        <Link to="/statements-rewards">Statements</Link>
         <a href="#contacts">Support</a>
       </div>
     </nav>
